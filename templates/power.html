@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% assets "dashboard_css" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+    {% endassets %}
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+</head>
+<body>
+<div class="layui-fluid" style="padding: 16px">
+    <div class="layui-card">
+        <table class="layui-hide" id="ID-treeTable-demo"></table>
+    </div>
+</div>
+{% assets "dashboard_js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+<script type="text/html" id="type">
+    {{ '{{# if (d.type === "menu") { }}' | safe }}
+    <span class="layui-badge layui-bg-green">菜单</span>
+    {{ '{{# } else if (d.type === "path") { }}' | safe }}
+    <span class="layui-badge layui-bg-blue">路径</span>
+    {{ '{{# } else if (d.type === "auth") { }}' | safe }}
+    <span class="layui-badge layui-bg-purple">权限</span>
+    {{ '{{# }  }}' | safe }}
+</script>
+<script type="text/html" id="power-toolbar">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="add">
+            新增权限
+        </button>
+    </div>
+</script>
+<script type="text/html" id="power-tool">
+    <div class="layui-btn-container">
+        <button
+                class="layui-btn layui-btn-sm layui-bg-blue"
+                lay-event="edit"
+        >
+            编辑
+        </button>
+        <button
+                class="layui-btn layui-btn-sm layui-bg-red"
+                lay-event="del"
+        >
+            删除
+        </button>
+    </div>
+</script>
+<form
+        class="layui-form"
+        lay-filter="power-form"
+        id="power-form"
+        style="padding: 15px; display: none"
+>
+    <div class="layui-form-item" style="display: none">
+        <label class="layui-form-label">ID</label>
+        <div class="layui-input-block">
+            <input
+                    type="text"
+                    name="id"
+                    value="0"
+                    lay-verify="required"
+                    placeholder="请输入权限名"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">权限名</label>
+        <div class="layui-input-block">
+            <input
+                    type="text"
+                    name="name"
+                    lay-verify="required"
+                    placeholder="请输入权限名"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">权限标识</label>
+        <div class="layui-input-block">
+            <input
+                    type="text"
+                    name="code"
+                    autocomplete="off"
+                    placeholder="请输入权限标识"
+                    class="layui-input"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">权限类型</label>
+        <div class="layui-input-block">
+            <input
+                    type="radio"
+                    name="type"
+                    value="menu"
+                    title="菜单"
+                    lay-filter="form-power-filter"
+                    checked
+            />
+            <input
+                    type="radio"
+                    name="type"
+                    value="path"
+                    title="路由"
+                    lay-filter="form-power-filter"
+            />
+            <input
+                    type="radio"
+                    name="type"
+                    value="auth"
+                    title="权限"
+                    lay-filter="form-power-filter"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item" style="display: none">
+        <label class="layui-form-label">访问地址</label>
+        <div class="layui-input-block">
+            <input
+                    type="text"
+                    name="url"
+                    lay-verify=""
+                    placeholder="请输入访问地址"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">序号</label>
+        <div class="layui-input-inline">
+            <input
+                    type="text"
+                    name="sort"
+                    placeholder=""
+                    autocomplete="off"
+                    class="layui-input"
+                    value="1"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">父元素 ID</label>
+        <div class="layui-input-inline">
+            <input
+                    type="text"
+                    name="pid"
+                    placeholder=""
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button
+                    type="submit"
+                    class="layui-btn"
+                    lay-submit
+                    lay-filter="power-form-btn"
+            >
+                立即提交
+            </button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+<script>
+    layui.use(function () {
+        var treeTable = layui.treeTable;
+        var layer = layui.layer;
+        let $ = layui.$;
+        let form = layui.form;
+        var dropdown = layui.dropdown;
+        var csrftoken = getCookie("csrf-token");
+
+        var inst = treeTable.render({
+            elem: "#ID-treeTable-demo",
+            url: "/api/v1/dashboard/power",
+            toolbar: "#power-toolbar",
+            cols: [
+                [
+                    {type: "checkbox", fixed: "left"},
+                    {field: "id", title: "ID", sort: true, fixed: "left"},
+                    {field: "name", title: "用户名"},
+                    {field: "type", title: "类型", sort: true, templet: "#type"},
+                    {field: "url", title: "访问地址"},
+                    {field: "code", title: "权限标识"},
+                    {field: "pid", title: "父节点id", hide: true},
+                    {
+                        fixed: "right",
+                        title: "操作",
+                        width: 120,
+                        align: "center",
+                        toolbar: "#power-tool",
+                    },
+                ],
+            ],
+            page: true
+            , defaultToolbar: [
+                {
+                    title: '刷新',
+                    layEvent: 'refresh',
+                    icon: 'layui-icon-refresh',
+                }, 'filter', 'print', 'exports']
+            , done: function (res) {
+                if (!(res.code === 0)) {
+                    layer.msg(res.message, {icon: 2, time: 500});
+                }
+            },
+        });
+
+        // 表头工具栏工具事件
+        treeTable.on("toolbar(ID-treeTable-demo)", function (obj) {
+            if (obj.event === "add") {
+                $("#power-form")[0].reset();
+                layer.open({
+                    type: 1,
+                    shade: false,
+                    content: $("#power-form"),
+                    area: ["50%", "80%"],
+                });
+                form.render($("#power-form"));
+            } else if (obj.event === 'refresh') {
+                treeTable.reload('ID-treeTable-demo');
+            }
+        });
+
+        // 提交事件
+        form.on("submit(power-form-btn)", function (data) {
+            let field = data.field;
+            field.status = !!field.status;
+            let method, url;
+            if (field.id == 0) {
+                field.id = null;
+                method = "POST";
+                url = "/api/v1/dashboard/power";
+
+                if (field.type === "path") {
+                    if (!/\//.test(field.url)) {
+                        layer.msg("url 不符合格式");
+                        return false;
+                    }
+                } else if (field.type === "auth") {
+                    console.log(field.pid);
+                    if (!field.pid || field.pid === "0") {
+                        layer.msg("权限必须填入父级 id");
+                        return false;
+                    }
+                }
+            } else {
+                method = "PUT";
+                url = `/api/v1/dashboard/power/${field.id}`;
+            }
+            $.ajax({
+                url: url,
+                type: method,
+                contentType: "application/json",
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+                data: JSON.stringify(field),
+                success: function (res) {
+                    if (res.code === 0) {
+                        layer.msg("成功", {icon: 1, time: 500}, function () {
+                            treeTable.reloadData("ID-treeTable-demo");
+                            layer.closeAll();
+                        });
+                    } else {
+                        layer.msg(res.message, {icon: 2, time: 500}, function () {
+                            layer.closeAll();
+                        });
+                    }
+                },
+            });
+
+            return false; // 阻止默认 form 跳转
+        });
+
+        treeTable.on("tool(ID-treeTable-demo)", function (obj) {
+            var layEvent = obj.event;
+            if (layEvent === "edit") {
+                form.val("power-form", obj.data);
+                layer.open({
+                    type: 1,
+                    shade: false,
+                    content: $("#power-form"),
+                    area: ["50%", "80%"],
+                });
+            } else if (layEvent === "del") {
+                layer.confirm('确定删除吗？', function (index) {
+
+                    $.ajax({
+                        url: `/api/v1/dashboard/power/${obj.data.id}`,
+                        type: "DELETE",
+                        contentType: "application/json",
+                        headers: {
+                            'X-CSRFToken': csrftoken,
+                        },
+                        success: function (res) {
+                            if (res.code === 0) {
+                                layer.msg("成功", {icon: 1, time: 500}, function () {
+                                    treeTable.reloadData("ID-treeTable-demo");
+                                    layer.closeAll();
+                                });
+                            } else {
+                                layer.msg(res.message, {icon: 2, time: 500}, function () {
+                                    layer.closeAll();
+                                });
+                            }
+                        },
+                    });
+                })
+            }
+        });
+
+        form.on("radio(form-power-filter)", function (data) {
+            var elem = data.elem;
+            var value = elem.value;
+
+            switch (value) {
+                case "menu":
+                    $('[name="url"]').parent().parent().hide();
+                    break;
+                case "path":
+                    $('[name="url"]').parent().parent().show();
+                    break;
+                case "auth":
+                    $('[name="url"]').parent().parent().hide();
+                    break;
+            }
+        });
+
+        // 单元格工具事件
+    });
+
+</script>
+</body>
+</html>

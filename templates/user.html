@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% assets "dashboard_css" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
+    {% endassets %}
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+</head>
+<body>
+<div class="layui-fluid" style="padding: 16px">
+    <div class="layui-card">
+        <table class="layui-hide" id="users" style=""></table>
+    </div>
+</div>
+{% assets "dashboard_js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+<script type="text/html" id="tool">
+    <div class="layui-btn-container">
+        <button type="button" class="layui-btn layui-btn-xs " lay-event="give">授权</button>
+        <button type="button" class="layui-btn layui-btn-xs layui-bg-red" lay-event="del">删除</button>
+
+    </div>
+
+</script>
+<script type="text/html" id="toolbar">
+    <div class="layui-btn-container">
+        <button type="button" class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+    </div>
+</script>
+<form class="layui-form" lay-filter="addForm" id="addForm"
+      style="display: none;margin-top: 5px!important;">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">名字</label>
+            <div class="layui-input-inline">
+                <input type="text" name="name" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-sm" lay-submit lay-filter="add-submit">
+                <i class="layui-icon layui-icon-release"></i>
+                &nbsp;提交
+            </button>
+            <button type="reset" class="layui-btn layui-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                &nbsp;重置
+            </button>
+        </div>
+    </div>
+</form>
+<form class="layui-form" lay-filter="giveForm" id="giveForm"
+      style="display: none;margin-top: 5px!important;">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">角色</label>
+            <div class="layui-input-block">
+                {% for role in roles %}
+                    <input
+                            type="radio"
+                            name="role_code"
+                            value="{{ role.code }}"
+                            title="{{ role.name }}"
+                            lay-filter="form-role-filter"
+                    />
+                {% endfor %}
+                <input type="hidden" name="id">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-sm" lay-submit lay-filter="role-submit">
+                <i class="layui-icon layui-icon-release"></i>
+                &nbsp;提交
+            </button>
+            <button type="reset" class="layui-btn layui-btn-sm">
+                <i class="layui-icon layui-icon-refresh"></i>
+                &nbsp;重置
+            </button>
+        </div>
+    </div>
+</form>
+<script>
+    layui.use(function () {
+        var table = layui.table;
+        var form = layui.form;
+        let $ = layui.$;
+        var csrftoken = getCookie("csrf-token");
+        // 创建渲染实例
+        table.render({
+            elem: '#users',
+            url: '/api/v1/dashboard/user', // 此处为静态模拟数据，实际使用时需换成真实接口
+            page: true,
+            toolbar: "#toolbar",
+            cols: [[
+                {type: 'checkbox'},
+                // 未自定义模板的普通列
+                {field: 'id', title: 'ID', sort: true},
+                // 模板 - 选择器写法
+                {field: 'name', title: '名字', edit: "editable"},
+                {field: 'role', title: '角色',},
+                {field: 'role_id', title: '角色ID', hide: true},
+                {field: 'role_code', title: '角色Code', hide: true},
+                {field: 'config', title: '操作', templet: "#tool"}
+
+            ]]
+            , defaultToolbar: [
+                {
+                    title: '刷新',
+                    layEvent: 'refresh',
+                    icon: 'layui-icon-refresh',
+                }, 'filter', 'print', 'exports']
+            , done: function (res) {
+                if (!(res.code === 0)) {
+                    layer.msg(res.message, {icon: 2, time: 500});
+                }
+            },
+        });
+        table.on('toolbar(users)', function (obj) {
+            if (obj.event === 'refresh') {
+                table.reload('users');
+            } else if (obj.event === 'add') {
+                layui.layer.open({
+                    type: 1, // page 层类型
+                    title: '新增',
+                    shade: 0.6, // 遮罩透明度
+                    shadeClose: true, // 点击遮罩区域，关闭弹层
+                    maxmin: true, // 允许全屏最小化
+                    anim: 0, // 0-6 的动画形式，-1 不开启
+                    content: $('#addForm'),
+                    cancel: function () {
+                        form.val('addForm', {
+                            'name': '',
+                        });
+                    },
+                });
+            }
+        });
+        table.on('tool(users)', function (obj) {
+            var data = obj.data; // 得到当前行数据
+            var layEvent = obj.event; // 获得元素对应的 lay-event 属性值
+            // 根据 lay-event 的值执行不同操作
+            if (layEvent === 'del') { //删除
+                layer.confirm('确定删除吗？', function (index) {
+                    let options = {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken,
+                        },
+                    };
+                    fetch(`/api/v1/dashboard/user/${data.id}`, options).then(function (ret) {
+                        return ret.json()
+                    }).then(function (res) {
+                        if (res.code === 0) {
+                            layer.msg("成功", {icon: 1, time: 500}, function () {
+                                obj.del(); // 删除对应行（tr）的 DOM 结构，并更新缓存
+                                table.reloadData("users", {
+                                    scrollPos: 'fixed'  // 保持滚动条位置不变 - v2.7.3 新增
+                                });
+                                layer.close(index);
+                            });
+                        } else {
+                            layer.msg(res.message, {icon: 2, time: 500}, function () {
+                                layer.close(index);
+                            });
+                        }
+                    })
+                });
+            } else if (layEvent === 'give') {
+                form.val('giveForm', data);
+                layui.layer.open({
+                    type: 1, // page 层类型
+                    title: '修改角色',
+                    shade: 0.6, // 遮罩透明度
+                    shadeClose: true, // 点击遮罩区域，关闭弹层
+                    maxmin: true, // 允许全屏最小化
+                    area: ["400px", "500px"],
+                    anim: 0, // 0-6 的动画形式，-1 不开启
+                    content: $('#giveForm'),
+                });
+            }
+        });
+        form.on('submit(add-submit)', function (data) {
+            let field = data.field;
+            let options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify(field)
+            };
+            fetch('/api/v1/dashboard/user', options).then(function (ret) {
+                return ret.json()
+            }).then(function (res) {
+                if (res.code === 0) {
+                    layer.msg("成功", {icon: 1, time: 500}, function () {
+                        table.reloadData("users", {
+                            scrollPos: 'fixed'  // 保持滚动条位置不变 - v2.7.3 新增
+                        });
+                        layer.closeAll();
+                    });
+                } else {
+                    layer.msg(res.message, {icon: 2, time: 500}, function () {
+                        layer.closeAll();
+                    });
+                }
+            })
+            return false
+        })
+        form.on('submit(role-submit)', function (data) {
+            let field = data.field;
+            let options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify(field)
+            };
+            fetch('/api/v1/dashboard/user/role_user/' + field.id, options).then(function (ret) {
+                return ret.json()
+            }).then(function (res) {
+                if (res.code === 0) {
+                    layer.msg("成功", {icon: 1, time: 500}, function () {
+                        table.reloadData("users", {
+                            scrollPos: 'fixed'  // 保持滚动条位置不变 - v2.7.3 新增
+                        });
+                        layer.closeAll();
+                    });
+                } else {
+                    layer.msg(res.message, {icon: 2, time: 500}, function () {
+                        layer.closeAll();
+                    });
+                }
+            })
+            return false
+        })
+        table.on('edit(users)', function (obj) {
+            var field = obj.field; // 得到修改的字段
+            var value = obj.value // 得到修改后的值
+            var id = obj.data.id // 得到所在行所有键值
+            let body = {
+                'name': value
+            }
+            // 值的校验
+            if (value.replace(/\s/g, '') === '') {
+                layer.tips('值不能为空', this, {tips: 1});
+                return obj.reedit(); // 重新编辑 -- v2.8.0 新增
+            }
+            // 编辑后续操作，如提交更新请求，以完成真实的数据更新
+            // …
+            let options = {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify(body)
+            };
+            fetch('/api/v1/dashboard/user/' + id, options).then(function (ret) {
+                return ret.json()
+            }).then(function (res) {
+                if (res.code === 0) {
+                    layer.msg("成功", {icon: 1, time: 500}, function () {
+                        table.reloadData("users", {
+                            scrollPos: 'fixed'  // 保持滚动条位置不变 - v2.7.3 新增
+                        });
+                        layer.closeAll();
+                    });
+                } else {
+                    layer.msg(res.message, {icon: 2, time: 500}, function () {
+                        layer.closeAll();
+                    });
+                }
+            })
+            // 更新当前缓存数据
+        });
+    })
+</script>
+</body>
+</html>

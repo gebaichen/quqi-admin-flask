@@ -1,0 +1,37 @@
+.idea
+*.py[cod]
+*.log
+.env
+migrations/
+quqienv/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*$py.class
+.idea/
+# C extensions
+*.so
+
+# Django stuff:
+local_settings.py
+db.sqlite3
+#logs/
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Environments 虚拟环境
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+commit.csv
+.obsidian/
+static/images_avatar_url
+poetry.lock
+dist/
+test/request/
+private/
+push/

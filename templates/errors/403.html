@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <link href="/static/admins/component/pear/css/pear.css" rel="stylesheet"/>
+    <link href="/static/admins/admin/css/other/error.css" rel="stylesheet"/>
+
+</head>
+<body>
+<div class="content">
+    <img src="/static/admins/admin/images/403.svg" alt="">
+    <div class="content-r">
+        <h1>403</h1>
+        <p>抱歉，你无权访问该页面</p>
+        <a href="/" class="pear-btn pear-btn-primary">返回首页</a>
+    </div>
+</div>
+<script src="/static/layui/layui.js"></script>
+<script>
+    layer.msg('你无权访问', {icon: 2, time: 1200});
+</script>
+</body>
+</html>
