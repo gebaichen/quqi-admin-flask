@@ -2,7 +2,7 @@
 import multiprocessing
 import os
 
-bind = "127.0.0.1:8888"  # 绑定ip和端口号
+bind = "127.0.0.1:8000"  # 绑定ip和端口号
 backlog = 512  # 监听队列
 chdir = os.path.dirname(os.path.abspath(__file__))  # gunicorn要切换到的目的工作目录
 timeout = 30  # 超时
