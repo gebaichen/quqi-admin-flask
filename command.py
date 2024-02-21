@@ -26,9 +26,9 @@ def register_command(app: Flask):
     @app.cli.command()
     def user():
         from quqi.models import UserModel
+
         user = UserModel()
-        user.username = 'quqi'
-        user.set_password_hash('123456')
+        user.username = "quqi"
+        user.set_password_hash("123456")
         user.role_id = 3
         user.save_add_db()
-

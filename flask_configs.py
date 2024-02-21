@@ -64,6 +64,7 @@ class TestingConfig(BaseConfig):
 
 class ProductionConfig(BaseConfig):
     """生成环境配置"""
+
     mysql_host = os.getenv("mysql-host", "127.0.0.1")
     mysql_password = os.getenv("mysql-password", "123456")
     mysql_port = os.getenv("mysql-port", 3306)

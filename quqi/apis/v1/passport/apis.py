@@ -31,11 +31,11 @@ class Login(Resource):
         # if real_image_code != image_code.upper():
         #     return return_error_api(code=RET.code_wrong, msg="验证码输入时错误")  # 判断用户名或密码缺少
         if not username or not password:
-            return return_error_api(code=RET.header_data_is_small, msg="用户名或密码缺少")
+            return return_error_api(
+                code=RET.header_data_is_small, msg="用户名或密码缺少"
+            )
         # 查找用户
-        user = UserModel.query.filter(
-            UserModel.username == username
-        ).first()
+        user = UserModel.query.filter(UserModel.username == username).first()
         # 判断用户名存不存在
         if not user:
             return return_error_api(code=RET.get_error, msg="用户名不存在")

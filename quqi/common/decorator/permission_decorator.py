@@ -58,9 +58,13 @@ def permission_required_table_api(permission):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if not current_user.is_active:
-                return return_table_error_api(msg="你没有这个权限", code=RET.permission_error)
+                return return_table_error_api(
+                    msg="你没有这个权限", code=RET.permission_error
+                )
             if permission not in session["permission"]:
-                return return_table_error_api(msg="你没有这个权限", code=RET.permission_error)
+                return return_table_error_api(
+                    msg="你没有这个权限", code=RET.permission_error
+                )
             return f(*args, **kwargs)
 
         return decorated_function
@@ -76,7 +80,9 @@ def role_required_api(role):
             if not current_user.is_active:
                 return return_error_api(msg="你没有这个权限", code=RET.permission_error)
             if current_user.role.code not in roles:
-                return return_error_api(msg="此用户角色不能进行操作", code=RET.permission_error)
+                return return_error_api(
+                    msg="此用户角色不能进行操作", code=RET.permission_error
+                )
             return f(*args, **kwargs)
 
         return decorated_function
@@ -90,7 +96,9 @@ def role_required_api_table(role):
         def decorated_function(*args, **kwargs):
             roles = role.split("&")
             if not current_user.is_active:
-                return return_table_error_api(msg="你没有这个权限", code=RET.permission_error)
+                return return_table_error_api(
+                    msg="你没有这个权限", code=RET.permission_error
+                )
             if current_user.role.code not in roles:
                 return return_table_error_api(
                     msg="此用户角色不能进行操作", code=RET.permission_error
@@ -129,7 +137,9 @@ def login_table_api_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not current_user.is_active:
-            return return_table_error_api(msg="请先登录之后再进行操作", code=RET.not_active)
+            return return_table_error_api(
+                msg="请先登录之后再进行操作", code=RET.not_active
+            )
         result = func(*args, **kwargs)
         return result
 

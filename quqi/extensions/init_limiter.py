@@ -18,9 +18,11 @@ def index_ratelimit_error_responder(request_limit):
 
 
 limiter = Limiter(
-    key_func=limit_key_func
-    if os.getenv("FLASK_CONFIG") == "production"
-    else get_remote_address,
+    key_func=(
+        limit_key_func
+        if os.getenv("FLASK_CONFIG") == "production"
+        else get_remote_address
+    ),
     # 每天200次，一小时50次
     default_limits=["4800 per day", "200 per hour", "50 per minute"],
     storage_uri=f"redis:{redis_password if redis_password else ''}//@{redis_host}:{redis_port}/1",
