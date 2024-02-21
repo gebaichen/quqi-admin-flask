@@ -69,7 +69,7 @@ class ProductionConfig(BaseConfig):
     mysql_password = os.getenv("mysql-password", "123456")
     mysql_port = os.getenv("mysql-port", 3306)
     mysql_user = os.getenv("mysql-user", "root")
-    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/quqi-admin-flask?charset=utf8mb4"
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/quqiadminflask?charset=utf8mb4"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     LOG_LEVEL = logging.ERROR
 
