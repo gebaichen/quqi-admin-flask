@@ -17,7 +17,7 @@ quqi-admin-flask
 ├─static  # 静态资源文件
 ├─templates  # 静态模板文件
 ├─test
-│   └─ main.sql # 测试数据
+│   └─ quqiadminflask.sql # 测试数据
 ├─.cz.yaml # commitizen配置文件
 ├─.env # 密钥文件
 ├─.flaskenv # flaskapp配置
@@ -55,7 +55,7 @@ flask db upgrade
 导入测试数据
 
 ```shell
-mysql -u 用户名 -p < ./test/main.sql
+mysql -u 用户名 -p < ./test/quqiadminflask.sql
 ```
 
 ```shell
