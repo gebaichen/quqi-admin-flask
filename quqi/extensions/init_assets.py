@@ -19,7 +19,6 @@ assets.register("passport_css", passport_css)
 
 index_css = Bundle(
     "layui/css/layui.css",
-    "css/index.css",
     filters="cssmin",
     output="dist/index_css.css",
 )
@@ -40,7 +39,6 @@ assets.register("dashboard_js", dashboard_js)
 
 dashboard_css = Bundle(
     "layui/css/layui.css",
-    "css/dashboard.css",
     "layuiadmin/style/admin.css",
     filters="cssmin",
     output="dist/dashboard_css.css",
