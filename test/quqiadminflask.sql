@@ -1,9 +1,8 @@
 INSERT INTO `info_user` VALUES (1, 'quqi', 'scrypt:32768:8:1$gbCLHH6gUXj3jWjD$a19725d30f603e291b834f88d90fec26bf65aae718c72926a0e3b2aea7dd0e522405f6f1adedb471468319f6358bc1af29e9efe24b3b72f697534e201a3a5739', 2, '2024-02-20 13:34:00.296131', '2024-02-20 13:34:00.296131');
 INSERT INTO `rt_role` VALUES (1, '普通用户', 'user', '2024-02-20 13:33:34.076828', '2024-02-20 13:33:34.076828');
 INSERT INTO `rt_role` VALUES (2, '管理员', 'admin', '2024-02-20 13:33:34.076828', '2024-02-20 13:33:34.076828');
-
-INSERT INTO `rt_power` VALUES (100, '工作台', '/dashboard/console', 'dashboard:console', 'menu', 100, 1, NULL, NULL);
-INSERT INTO `rt_power` VALUES (101, '系统管理', '', 'dashboard:system', 'menu', 101, 2, NULL, NULL);
+INSERT INTO `rt_power` VALUES (100, '工作台', '/dashboard/console', 'dashboard:console', 'menu', NULL, 1, NULL, NULL);
+INSERT INTO `rt_power` VALUES (101, '系统管理', '', 'dashboard:system', 'menu', NULL, 2, NULL, NULL);
 INSERT INTO `rt_power` VALUES (102, '角色管理', '/dashboard/role', 'dashboard:system:role', 'path', 101, 1, NULL, NULL);
 INSERT INTO `rt_power` VALUES (103, '权限管理', '/dashboard/power', 'dashboard:system:power', 'path', 101, 2, NULL, NULL);
 INSERT INTO `rt_power` VALUES (104, '用户管理', '/dashboard/user', 'dashboard:system:user', 'path', 101, 3, NULL, NULL);

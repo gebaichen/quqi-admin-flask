@@ -77,7 +77,7 @@ class PowerModel(BaseModel, db.Model):
     code = db.Column(db.String(64), comment="权限标识")
     type = db.Column(db.String(30), comment="权限类型")
     pid = db.Column(
-        db.Integer, db.ForeignKey("rt_power.id"), comment="父类编号", default=0
+        db.Integer, db.ForeignKey("rt_power.id"), comment="父类编号"
     )
     sort = db.Column(db.Integer, default=1)
     parent = db.relationship(

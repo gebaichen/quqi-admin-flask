@@ -33,7 +33,7 @@ class PowerAPI(Resource):
             rights_list = [
                 {
                     "id": r.id,
-                    "pid": r.pid,
+                    "pid": r.pid if r.pid else 0,
                     "title": r.name,
                     "sort": r.sort,
                     "children_count": r.children.count(),
