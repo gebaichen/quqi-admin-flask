@@ -9,5 +9,6 @@ from .role import *
 from .user import *
 from .profiles import *
 
+
 def register_dashboard_bp(app: Flask):
     app.register_blueprint(dashboard_bp)
