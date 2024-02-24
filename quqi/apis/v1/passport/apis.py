@@ -45,7 +45,8 @@ class Login(Resource):
         if not user.check_password_hash(password):
             return return_error_api(code=RET.password_wrong, msg="密码错误")
         user.last_login = datetime.datetime.now()
-        user.address = search_with_file(ipv4)
+        address = search_with_file(ipv4).split('|')
+        user.address = address[2] + address[3]
         # 如果要记住我
         # 如果要记住我
         if all([remember_me]):
