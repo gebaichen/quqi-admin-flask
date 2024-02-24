@@ -14,8 +14,12 @@ class UserModel(BaseModel, db.Model, UserMixin):
     __tablename__ = "info_user"
 
     id = db.Column(db.Integer, primary_key=True)  # 用户编号
-    username = db.Column(db.String(32), unique=True, nullable=False)  # 用户昵称
-    password_hash = db.Column(db.String(256), nullable=False)  # 加密的密码
+    username = db.Column(db.String(32), unique=True, nullable=False, comment='用户昵称')  # 用户昵称
+    avatar = db.Column(db.String(255), comment='头像', default="/static/images/user_pic.png")
+    email = db.Column(db.String(255), comment='用户邮箱')
+    address = db.Column(db.String(255), comment='用户地址')
+    mobile = db.Column(db.String(255), nullable=False, comment='用户手机号')
+    password_hash = db.Column(db.String(255), nullable=False, comment='加密的密码')  # 加密的密码
     role_id = db.Column(db.Integer, db.ForeignKey("rt_role.id"))
 
     def set_password_hash(self, password):

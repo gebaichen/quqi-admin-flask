@@ -31,7 +31,11 @@ class BaseConfig:
     REDIS_HOST = redis_host
     REDIS_PORT = redis_port
     REDIS_PASSWORD = redis_password
-    SQLALCHEMY_DATABASE_URI = "sqlite:///quqi_admin.db"
+    mysql_host = os.getenv("mysql-host", "127.0.0.1")
+    mysql_password = os.getenv("mysql-password", "123456")
+    mysql_port = os.getenv("mysql-port", 3306)
+    mysql_user = os.getenv("mysql-user", "root")
+    SQLALCHEMY_DATABASE_URI = f"mysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/quqiadminflask?charset=utf8mb4"
     # 配置logging级别
     LOG_LEVEL = logging.DEBUG
     # 配置邮箱
@@ -65,11 +69,6 @@ class TestingConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     """生成环境配置"""
 
-    mysql_host = os.getenv("mysql-host", "127.0.0.1")
-    mysql_password = os.getenv("mysql-password", "123456")
-    mysql_port = os.getenv("mysql-port", 3306)
-    mysql_user = os.getenv("mysql-user", "root")
-    SQLALCHEMY_DATABASE_URI = f"mysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/quqiadminflask?charset=utf8mb4"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     LOG_LEVEL = logging.ERROR
 

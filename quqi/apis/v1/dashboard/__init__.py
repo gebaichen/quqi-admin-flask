@@ -1,6 +1,11 @@
 from flask_restful import Api
 
-from .apis import GiveRole, PowerAPI, RoleAPI, UserAPI, UserGiveRole
+from quqi.apis.v1.dashboard.power import PowerAPI
+from quqi.apis.v1.dashboard.role import RoleAPI, RoleGivePower
+from quqi.apis.v1.dashboard.user import UserAPI, UserGiveRole
+
+
+# from .apis import GiveRole, PowerAPI, RoleAPI, UserAPI, UserGiveRole
 
 
 def register_dashboard_api(api_bp):
@@ -27,7 +32,7 @@ def register_dashboard_api(api_bp):
         endpoint="dashboard_role_change",
     )
     dashboard_api.add_resource(
-        GiveRole,
+        RoleGivePower,
         "/dashboard/role/power/<int:rid>",
         endpoint="dashboard_role_power",
     )

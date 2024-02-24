@@ -44,6 +44,14 @@ dashboard_css = Bundle(
     output="dist/dashboard_css.css",
 )
 assets.register("dashboard_css", dashboard_css)
+dashboard_profiles_css = Bundle(
+    "layui/css/layui.css",
+    "layuiadmin/style/admin.css",
+    "layuiadmin/style/template.css",
+    filters="cssmin",
+    output="dist/dashboard_profiles_css.css",
+)
+assets.register("dashboard_profiles_css", dashboard_profiles_css)
 
 
 def init_assets(app):
