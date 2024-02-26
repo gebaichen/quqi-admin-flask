@@ -1,4 +1,5 @@
 import datetime
+import os
 
 from flask import current_app, make_response, request, session
 from flask_login import login_user, logout_user
@@ -21,7 +22,11 @@ class Login(Resource):
         remember_me = request.json.get("remember-me")
         image_code = request.json.get("image_code")
         image_code_id = request.json.get("image_code_id")
-        ipv4 = request.remote_addr
+        config_name = os.getenv("FLASK_CONFIG")
+        if not config_name == "production":
+            ipv4 = request.remote_addr
+        else:
+            ipv4 = request.headers['X-Real-Ip']
         if not all([mobile, password, image_code, image_code_id]):
             return return_error_api(code=RET.header_data_is_small, msg="请求头数据缺少")
 
