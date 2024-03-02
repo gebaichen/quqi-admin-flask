@@ -1,5 +1,6 @@
-from binding.python.xdbSearcher import XdbSearcher
 import timeit
+
+from binding.python.xdbSearcher import XdbSearcher
 
 
 def searchWithFile():
@@ -16,7 +17,7 @@ def searchWithFile():
     searcher.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     elapsed_time = timeit.timeit(searchWithFile, number=1000)  # 重复执行 1000 次
-    formatted_time = '{:.15f}'.format(elapsed_time / 1000)  # 格式化运行时间
+    formatted_time = "{:.15f}".format(elapsed_time / 1000)  # 格式化运行时间
     print(f"平均运行时间: {formatted_time} 秒")

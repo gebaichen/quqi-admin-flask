@@ -6,12 +6,12 @@
 #  Copyright © 2022年 luckydog. All rights reserved.
 #
 # from ast import main
+import argparse
 import io
+import sys
+import time
 
 from xdbSearcher import XdbSearcher
-import argparse
-import time
-import sys
 
 
 def printHelp():
@@ -21,13 +21,15 @@ def printHelp():
     print(" --src string            source ip text file path")
     print(" --cache-policy string   cache policy: file/vectorIndex/content")
 
+
 def trim(string):
-    if string[:1] != ' ' and string[-1:] != ' ':
+    if string[:1] != " " and string[-1:] != " ":
         return string
-    elif string[:1] == ' ':
+    elif string[:1] == " ":
         return trim(string[1:])
     else:
         return trim(string[:-1])
+
 
 def start_bench(dbFile="", srcFile="", cachePolicy="vectorIndex"):
     if cachePolicy == "file":
@@ -67,20 +69,20 @@ def start_bench(dbFile="", srcFile="", cachePolicy="vectorIndex"):
             line = trim(f.readline(1024)).decode("utf-8").replace("\n", "")
             if len(line) < 1:
                 break
-            
-            ps = line.split("|",2)
+
+            ps = line.split("|", 2)
             if len(ps) != 3:
                 print(f"invalid ip segment line :{line}")
                 return
             sip = XdbSearcher.ip2long(None, ps[0])
             eip = XdbSearcher.ip2long(None, ps[1])
-            
+
             if sip > eip:
                 print(f"start ip({ps[0]}) should not be greater than end ip({ps[1]})")
                 return
-            
+
             mip = (sip + eip) >> 1
-            
+
             for ip in [sip, (sip + mip) >> 1, mip, (mip + eip) >> 1, eip]:
                 try:
                     cTime = time.time()
@@ -97,24 +99,29 @@ def start_bench(dbFile="", srcFile="", cachePolicy="vectorIndex"):
                     print(f"failed search({ip}) with ({region} != {ps[2]})")
                     return
                 count = count + 1
-                
+
         # close the searcher at last
         f.close()
         searcher.close()
-        print(f"Bench finished, {{cachePolicy: {cachePolicy}, total: {count}, took: {round(time.time() - sTime, 2)} s, cost: {round(costs/count*1000, 4)} ms/op}}")
+        print(
+            f"Bench finished, {{cachePolicy: {cachePolicy}, total: {count}, took: {round(time.time() - sTime, 2)} s, cost: {round(costs/count*1000, 4)} ms/op}}"
+        )
     except Exception as err:
         print(f"failed to open source text file :{err}")
         return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if len(sys.argv) < 2:
         printHelp()
         exit(0)
     parse = argparse.ArgumentParser()
     parse.add_argument("--db", help="ip2region binary xdb file path")
     parse.add_argument("--src", help="source ip text file path")
-    parse.add_argument("--cache-policy", choices=["file", "vectorIndex", "content"],
-                       help="cache policy: file/vectorIndex/content")
+    parse.add_argument(
+        "--cache-policy",
+        choices=["file", "vectorIndex", "content"],
+        help="cache policy: file/vectorIndex/content",
+    )
     args = parse.parse_args()
     start_bench(dbFile=args.db, srcFile=args.src, cachePolicy=args.cache_policy)

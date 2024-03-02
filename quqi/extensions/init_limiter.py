@@ -4,6 +4,9 @@ from flask import Flask, jsonify, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
+from quqi.common.returns import return_error_api
+from quqi.common.utils.response_code import RET
+
 redis_host = os.getenv("redis-host", "127.0.0.1")
 redis_port = os.getenv("redis-port", 6379)
 redis_password = os.getenv("redis-password", None)
@@ -14,7 +17,7 @@ def limit_key_func():
 
 
 def index_ratelimit_error_responder(request_limit):
-    return jsonify({"message": "访问受限制"})
+    return return_error_api(code=RET.limit_error, msg="访问受限制")
 
 
 limiter = Limiter(

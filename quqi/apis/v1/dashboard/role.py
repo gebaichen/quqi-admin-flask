@@ -1,12 +1,21 @@
-from flask import request, current_app
+from flask import current_app, request
 from flask_restful import Resource
 
-from quqi.common.decorator import login_table_api_required, permission_required_table_api, login_api_required, \
-    permission_required_api
-from quqi.common.returns import return_error_api, return_success_api, return_table_error_api, return_table_api
+from quqi.common.decorator import (
+    login_api_required,
+    login_table_api_required,
+    permission_required_api,
+    permission_required_table_api,
+)
+from quqi.common.returns import (
+    return_error_api,
+    return_success_api,
+    return_table_api,
+    return_table_error_api,
+)
 from quqi.common.utils.response_code import RET
 from quqi.extensions import db
-from quqi.models import RoleModel, PowerModel
+from quqi.models import PowerModel, RoleModel
 
 
 class RoleAPI(Resource):
@@ -52,10 +61,23 @@ class RoleAPI(Resource):
         name = request.json.get("name")
         if not all([code, name]):
             return return_error_api(code=RET.header_data_is_small, msg="请求失败")
+        r_c = RoleModel.query.filter(RoleModel.code == code).first()
+        r_n = RoleModel.query.filter(RoleModel.name == name).first()
+        if r_c or r_n:
+            return return_error_api(code=RET.header_data_error, msg="角色信息重复")
         role = RoleModel()
         role.code = code
         role.name = name
-        role.save_add_db()
+        try:
+            # 保存
+            role.save_add_db()
+        except Exception as e:
+            # 失败就进行滚回操作
+            db.session.rollback()
+            # 添加log
+            current_app.logger.error(e)
+            current_app.logger.error("操作失败")
+            return return_error_api(code=RET.commit_error, msg="操作失败")
         return return_success_api()
 
     @login_api_required
@@ -72,7 +94,16 @@ class RoleAPI(Resource):
             return return_error_api(code=RET.header_data_is_small, msg="请求失败")
         role.code = code
         role.name = name
-        role.save_put_db()
+        try:
+            # 保存
+            role.save_add_db()
+        except Exception as e:
+            # 失败就进行滚回操作
+            db.session.rollback()
+            # 添加log
+            current_app.logger.error(e)
+            current_app.logger.error("操作失败")
+            return return_error_api(code=RET.commit_error, msg="操作失败")
         return return_success_api()
 
     @login_api_required
@@ -83,7 +114,16 @@ class RoleAPI(Resource):
         role = RoleModel.query.get(rid)
         if not role:
             return return_error_api(code=RET.get_error, msg="请求失败")
-        role.save_delete_db()
+        try:
+            # 保存
+            role.save_delete_db()
+        except Exception as e:
+            # 失败就进行滚回操作
+            db.session.rollback()
+            # 添加log
+            current_app.logger.error(e)
+            current_app.logger.error("操作失败")
+            return return_error_api(code=RET.commit_error, msg="操作失败")
         return return_success_api()
 
 
@@ -116,5 +156,14 @@ class RoleGivePower(Resource):
         if not rights_obj_list:
             return return_error_api(code=RET.header_data_is_small, msg="无数据")
         role.power = [r for r in rights_obj_list]
-        role.save_put_db()
+        try:
+            # 保存
+            role.save_add_db()
+        except Exception as e:
+            # 失败就进行滚回操作
+            db.session.rollback()
+            # 添加log
+            current_app.logger.error(e)
+            current_app.logger.error("操作失败")
+            return return_error_api(code=RET.commit_error, msg="操作失败")
         return return_success_api()

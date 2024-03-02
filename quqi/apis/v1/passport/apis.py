@@ -26,7 +26,7 @@ class Login(Resource):
         if not config_name == "production":
             ipv4 = request.remote_addr
         else:
-            ipv4 = request.headers['X-Real-Ip']
+            ipv4 = request.headers["X-Real-Ip"]
         if not all([mobile, password, image_code, image_code_id]):
             return return_error_api(code=RET.header_data_is_small, msg="请求头数据缺少")
 
@@ -36,7 +36,9 @@ class Login(Resource):
         if not real_image_code:
             return return_error_api(code=RET.code_expired, msg="验证码已经过期")
         if real_image_code != image_code.upper():
-            return return_error_api(code=RET.code_wrong, msg="验证码输入时错误")  # 判断用户名或密码缺少
+            return return_error_api(
+                code=RET.code_wrong, msg="验证码输入时错误"
+            )  # 判断用户名或密码缺少
         if not mobile or not password:
             return return_error_api(
                 code=RET.header_data_is_small, msg="用户名或密码缺少"
@@ -50,7 +52,7 @@ class Login(Resource):
         if not user.check_password_hash(password):
             return return_error_api(code=RET.password_wrong, msg="密码错误")
         user.last_login = datetime.datetime.now()
-        address = search_with_file(ipv4).split('|')
+        address = search_with_file(ipv4).split("|")
         user.address = address[2] + address[3]
         # 如果要记住我
         # 如果要记住我

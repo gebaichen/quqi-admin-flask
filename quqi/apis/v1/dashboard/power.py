@@ -1,11 +1,20 @@
 from copy import deepcopy
 
-from flask import request, current_app
+from flask import current_app, request
 from flask_restful import Resource
 
-from quqi.common.decorator import login_table_api_required, permission_required_table_api, login_api_required, \
-    permission_required_api
-from quqi.common.returns import return_error_api, return_success_api, return_table_error_api, return_table_api
+from quqi.common.decorator import (
+    login_api_required,
+    login_table_api_required,
+    permission_required_api,
+    permission_required_table_api,
+)
+from quqi.common.returns import (
+    return_error_api,
+    return_success_api,
+    return_table_api,
+    return_table_error_api,
+)
 from quqi.common.utils.response_code import RET
 from quqi.extensions import db
 from quqi.models import PowerModel
@@ -93,6 +102,9 @@ class PowerAPI(Resource):
         url = request.json.get("url")
         if not all([code, name, sort, type]):
             return return_error_api(code=RET.header_data_is_small, msg="请求头缺少")
+        r_n = PowerModel.query.filter(PowerModel.name == name).first()
+        if r_n:
+            return return_error_api(code=RET.header_data_error, msg="权限信息重复")
         power = PowerModel()
         power.code = code
         power.name = name
@@ -100,7 +112,16 @@ class PowerAPI(Resource):
         power.sort = sort
         power.type = type
         power.url = url
-        power.save_add_db()
+        try:
+            # 保存
+            power.save_add_db()
+        except Exception as e:
+            # 失败就进行滚回操作
+            db.session.rollback()
+            # 添加log
+            current_app.logger.error(e)
+            current_app.logger.error("操作失败")
+            return return_error_api(code=RET.commit_error, msg="操作失败")
         return return_success_api()
 
     @login_api_required
@@ -126,7 +147,16 @@ class PowerAPI(Resource):
         power.type = type
         if url:
             power.url = url
-        power.save_put_db()
+        try:
+            # 保存
+            power.save_add_db()
+        except Exception as e:
+            # 失败就进行滚回操作
+            db.session.rollback()
+            # 添加log
+            current_app.logger.error(e)
+            current_app.logger.error("操作失败")
+            return return_error_api(code=RET.commit_error, msg="操作失败")
         return return_success_api()
 
     @login_api_required
@@ -137,5 +167,14 @@ class PowerAPI(Resource):
         power: PowerModel = PowerModel.query.get(p_id)
         if not power:
             return return_error_api(code=RET.get_error, msg="没有数据")
-        power.save_delete_db()
+        try:
+            # 保存
+            power.save_delete_db()
+        except Exception as e:
+            # 失败就进行滚回操作
+            db.session.rollback()
+            # 添加log
+            current_app.logger.error(e)
+            current_app.logger.error("操作失败")
+            return return_error_api(code=RET.commit_error, msg="操作失败")
         return return_success_api()

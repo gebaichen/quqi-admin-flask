@@ -10,6 +10,119 @@
     {% assets "dashboard_css" %}
         <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
     {% endassets %}
+    <style>
+        .loader-main {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: whitesmoke;
+            z-index: 9999999;
+            padding-left: 0px;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            margin: 30px auto 40px;
+            margin-top: 20%;
+            position: relative;
+            z-index: 999999;
+            background-color: whitesmoke;
+        }
+
+        .loader:before {
+            content: "";
+            width: 50px;
+            height: 7px;
+            border-radius: 50%;
+            background: #000;
+            opacity: 0.1;
+            position: absolute;
+            top: 59px;
+            left: 0;
+            animation: shadow 0.5s linear infinite;
+        }
+
+        .loader:after {
+            content: "";
+            width: 50px;
+            height: 50px;
+            border-radius: 3px;
+            background-color: #16baaa;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: loading 0.5s linear infinite;
+        }
+
+        @-webkit-keyframes loading {
+            17% {
+                border-bottom-right-radius: 3px;
+            }
+
+            25% {
+                transform: translateY(9px) rotate(22.5deg);
+            }
+
+            50% {
+                transform: translateY(18px) scale(1, 0.9) rotate(45deg);
+                border-bottom-right-radius: 40px;
+            }
+
+            75% {
+                transform: translateY(9px) rotate(67.5deg);
+            }
+
+            100% {
+                transform: translateY(0) rotate(90deg);
+            }
+        }
+
+        @keyframes loading {
+            17% {
+                border-bottom-right-radius: 3px;
+            }
+
+            25% {
+                transform: translateY(9px) rotate(22.5deg);
+            }
+
+            50% {
+                transform: translateY(18px) scale(1, 0.9) rotate(45deg);
+                border-bottom-right-radius: 40px;
+            }
+
+            75% {
+                transform: translateY(9px) rotate(67.5deg);
+            }
+
+            100% {
+                transform: translateY(0) rotate(90deg);
+            }
+        }
+
+        @-webkit-keyframes shadow {
+            0%,
+            100% {
+                transform: scale(1, 1);
+            }
+
+            50% {
+                transform: scale(1.2, 1);
+            }
+        }
+
+        @keyframes shadow {
+            0%,
+            100% {
+                transform: scale(1, 1);
+            }
+
+            50% {
+                transform: scale(1.2, 1);
+            }
+        }
+    </style>
 </head>
 <body class="layui-layout-body">
 
@@ -64,7 +177,7 @@
                     </a>
                 </li>
                 <li class="layui-nav-item" lay-unselect>
-                     <a href="javascript:;">
+                    <a href="javascript:;">
                         <img src="{{ current_user.avatar }}" class="layui-nav-img">
                         <cite>{{ current_user.username }}</cite>
                     </a>
@@ -87,15 +200,16 @@
         <!-- 侧边菜单 -->
         <div class="layui-side layui-side-menu">
             <div class="layui-side-scroll">
-                <div class="layui-logo" lay-href="home/console.html">
+                <div class="layui-logo" lay-href="/dashboard/console">
                     <span>Quqi-Admin-Flask</span>
                 </div>
 
                 <ul class="layui-nav layui-nav-tree" lay-shrink="all" id="LAY-system-side-menu"
                     lay-filter="layadmin-system-side-menu">
-                    {% if current_user.check_p('dashboard:system:power') or current_user.check_p('dashboard:system:role') or current_user.check_p('dashboard:system:user') %}
+                    {% if current_user.check_p('dashboard:system:power') or
+                    current_user.check_p('dashboard:system:role') or current_user.check_p('dashboard:system:user') %}
                         <li class="layui-nav-item">
-                            <a class="" href="javascript:;">
+                            <a class="" href="javascript:;" lay-tips="系统管理" lay-direction="2">
                                 <i class="layui-icon layui-icon-set"></i>
                                 <cite>系统管理</cite>
                             </a>
@@ -161,6 +275,9 @@
         <div class="layadmin-body-shade" layadmin-event="shade"></div>
     </div>
 </div>
+<div class="loader-main">
+      <div class="loader"></div>
+</div>
 {% assets "dashboard_js" %}
     <script src="{{ ASSET_URL }}"></script>
 {% endassets %}
@@ -170,6 +287,11 @@
     }).extend({
         index: 'lib/index' //主入口模块
     }).use('index');
+    let $ = layui.$;
+
+    setTimeout(function () {
+        $(".loader-main").fadeOut(1000);
+    });
 </script>
 
 <!-- 百度统计 -->

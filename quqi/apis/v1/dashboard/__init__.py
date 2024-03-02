@@ -1,11 +1,10 @@
 from flask_restful import Api
 
+from quqi.apis.v1.dashboard.img import UploadImage
 from quqi.apis.v1.dashboard.power import PowerAPI
+from quqi.apis.v1.dashboard.profiles import ProfilesBaseInfo
 from quqi.apis.v1.dashboard.role import RoleAPI, RoleGivePower
 from quqi.apis.v1.dashboard.user import UserAPI, UserGiveRole
-
-
-# from .apis import GiveRole, PowerAPI, RoleAPI, UserAPI, UserGiveRole
 
 
 def register_dashboard_api(api_bp):
@@ -50,14 +49,13 @@ def register_dashboard_api(api_bp):
         "/dashboard/user/role_user/<int:user_id>",
         endpoint="dashboard_change_user_role",
     )
-    # dashboard_api.add_resource(
-    #     dashboardContent, "/user/<int:user_id>/dashboard/<int:dashboard_id>", endpoint="dashboard_content"
-    # )
-
-    # rest full 风格的 api 服务器
-    # 登录注册数据的操作
-    # dashboard_api.add_resource(Login, "/passport/login", endpoint="login")
-    # dashboard_api.add_resource(
-    #     GetCaptcha, "/passport/getCaptcha", endpoint="get_captcha"
-    # )
-    # dashboard_api.add_resource(Logout, "/passport/logout", endpoint="logout")
+    dashboard_api.add_resource(
+        UploadImage,
+        "/dashboard/upload/image",
+        endpoint="dashboard_upload_image",
+    )
+    dashboard_api.add_resource(
+        ProfilesBaseInfo,
+        "/dashboard/profiles/base_info",
+        endpoint="dashboard_profiles_base_info",
+    )

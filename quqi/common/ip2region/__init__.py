@@ -1,5 +1,6 @@
-from .binding.python.xdbSearcher import XdbSearcher
 import os
+
+from .binding.python.xdbSearcher import XdbSearcher
 
 
 def search_with_file(ip):
